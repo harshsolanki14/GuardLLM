@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useMemo } from 'react';
@@ -7,7 +7,7 @@ import { ResultsDisplay } from './components/ResultsDisplay';
 import { SummaryChart } from './components/SummaryChart';
 import type { TestResult, TestId, LLMProvider, LLMConfig, AttackMode } from './types';
 import { OWASP_LLM_TOP_10 } from './constants';
-import { runTest } from './services/geminiService';
+import { listOllamaModels, runTest } from './services/geminiService';
 import { ShieldCheckIcon } from './components/icons/ShieldCheckIcon';
 
 // ============================================================================
@@ -31,7 +31,7 @@ interface AppState {
 // ============================================================================
 
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant.";
-const DEFAULT_ENDPOINT = 'http://localhost:11434/v1/chat/completions';
+const DEFAULT_ENDPOINT = 'http://localhost:11434';
 const DEFAULT_MODEL = 'tinyllama';
 const BATCH_TEST_DELAY_MS = 100;
 const GEMINI_KEY_AVAILABLE = Boolean(import.meta.env.VITE_GEMINI_API_KEY?.trim());
@@ -45,6 +45,12 @@ const App: React.FC = () => {
     const [llmProvider, setLlmProvider] = useState<LLMProvider>(GEMINI_KEY_AVAILABLE ? 'gemini' : 'local');
     const [localModelEndpoint, setLocalModelEndpoint] = useState<string>(DEFAULT_ENDPOINT);
     const [localModelName, setLocalModelName] = useState<string>(DEFAULT_MODEL);
+    const [ollamaModels, setOllamaModels] = useState<string[]>([]);
+    const [isLoadingModels, setIsLoadingModels] = useState(false);
+    const [modelDiscoveryError, setModelDiscoveryError] = useState<string | null>(null);
+    const [customEndpoint, setCustomEndpoint] = useState('');
+    const [customModelName, setCustomModelName] = useState('');
+    const [customApiKey, setCustomApiKey] = useState('');
     const [attackMode, setAttackMode] = useState<AttackMode>('basic');
 
     // Memoized test selection handler
@@ -61,10 +67,36 @@ const App: React.FC = () => {
     }, []);
 
     // Memoized LLM config builder
+    useEffect(() => {
+        if (llmProvider !== 'local') return;
+        let cancelled = false;
+        setIsLoadingModels(true);
+        setModelDiscoveryError(null);
+        listOllamaModels(localModelEndpoint)
+            .then(models => {
+                if (!cancelled) {
+                    setOllamaModels(models);
+                    if (models.length > 0 && !models.includes(localModelName)) {
+                        setLocalModelName(models[0]);
+                    }
+                }
+            })
+            .catch(error => {
+                if (!cancelled) {
+                    setModelDiscoveryError(error instanceof Error ? error.message : 'Could not discover Ollama models.');
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setIsLoadingModels(false);
+            });
+        return () => { cancelled = true; };
+    }, [llmProvider, localModelEndpoint]);
+
     const llmConfig: LLMConfig = useMemo(() => ({
         provider: llmProvider,
-        ...(llmProvider === 'local' && { endpoint: localModelEndpoint, model: localModelName })
-    }), [llmProvider, localModelEndpoint, localModelName]);
+        ...(llmProvider === 'local' && { endpoint: localModelEndpoint, model: localModelName }),
+        ...(llmProvider === 'custom' && { endpoint: customEndpoint, model: customModelName, apiKey: customApiKey })
+    }), [llmProvider, localModelEndpoint, localModelName, customEndpoint, customModelName, customApiKey]);
 
     // Validate system prompt
     const isValidSystemPrompt = useMemo(() => {
@@ -83,7 +115,12 @@ const App: React.FC = () => {
         }
 
         if (llmProvider === 'local' && (!localModelEndpoint.trim() || !localModelName.trim())) {
-            alert('Local provider requires both endpoint URL and model name.');
+            alert('Ollama requires an endpoint URL and an installed model.');
+            return;
+        }
+
+        if (llmProvider === 'custom' && (!customEndpoint.trim() || !customModelName.trim() || !customApiKey.trim())) {
+            alert('Custom API requires an OpenAI-compatible endpoint, model name, and API key.');
             return;
         }
 
@@ -232,6 +269,10 @@ const App: React.FC = () => {
                                 <input type="radio" name="llmProvider" value="local" checked={llmProvider === 'local'} onChange={() => setLlmProvider('local')} className="form-radio h-5 w-5 text-primary focus:ring-primary"/>
                                 <span className="ml-3 text-base text-on-surface">Local Model (Ollama)</span>
                             </label>
+                            <label className="flex items-center">
+                                <input type="radio" name="llmProvider" value="custom" checked={llmProvider === 'custom'} onChange={() => setLlmProvider('custom')} className="form-radio h-5 w-5 text-primary focus:ring-primary"/>
+                                <span className="ml-3 text-base text-on-surface">Custom OpenAI-Compatible API</span>
+                            </label>
                         </div>
                         {!GEMINI_KEY_AVAILABLE && (
                             <p className="text-xs md:text-sm text-amber-700 mt-2">
@@ -258,23 +299,34 @@ const App: React.FC = () => {
                     {llmProvider === 'local' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 p-5 border rounded-xl bg-slate-50">
                             <div>
-                                <label htmlFor="local-model-endpoint" className="block text-sm font-medium text-slate-700 mb-2">Ollama Endpoint URL</label>
-                                <input id="local-model-endpoint" type="text" value={localModelEndpoint} onChange={(e) => setLocalModelEndpoint(e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
+                                <label htmlFor="local-model-endpoint" className="block text-sm font-medium text-slate-700 mb-2">Ollama Server URL</label>
+                                <input id="local-model-endpoint" type="url" value={localModelEndpoint} onChange={(e) => setLocalModelEndpoint(e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
                             </div>
                              <div>
-                                <label htmlFor="local-model-name" className="block text-sm font-medium text-slate-700 mb-2">Model Name</label>
-                                 <select id="local-model-name" value={localModelName} onChange={(e) => setLocalModelName(e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading}>
-                                    <option value="deepseek-v3.1:671b-cloud">DeepSeek V3.1 671B (Cloud - Advanced)</option>
-                                    <option value="llama3.1:8b">Llama 3.1 8B (Robust)</option>
-                                    <option value="gemma:2b">Gemma 2B (Moderate Security)</option>
-                                    <option value="tinyllama">TinyLlama 1.1B (⚠️ Highly Vulnerable - Best for Testing)</option>
-                                    <option value="llama3.2:1b">Llama 3.2 1B</option>
-                                    <option value="phi3">Phi-3 Mini (alias: phi3)</option>
-                                    <option value="phi-3-mini">Phi-3 Mini (recommended: phi-3-mini)</option>
-                                    <option value="gemma4">Gemma 4 (Local - if pulled as gemma4)</option>
-                                    <option value="gemma:4">Gemma 4 (Ollama tag: gemma:4)</option>
-                                </select>
+                                <label htmlFor="local-model-name" className="block text-sm font-medium text-slate-700 mb-2">Installed Model</label>
+                                <input id="local-model-name" list="ollama-models" value={localModelName} onChange={(e) => setLocalModelName(e.target.value)} className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
+                                <datalist id="ollama-models">{ollamaModels.map(model => <option key={model} value={model} />)}</datalist>
+                                <p className="text-xs text-slate-500 mt-2">{isLoadingModels ? 'Discovering installed models...' : `${ollamaModels.length} installed model${ollamaModels.length === 1 ? '' : 's'} discovered.`}</p>
                             </div>
+                            {modelDiscoveryError && <p className="md:col-span-2 text-sm text-amber-700">{modelDiscoveryError} Check that Ollama is running and accessible from this browser.</p>}
+                        </div>
+                    )}
+
+                    {llmProvider === 'custom' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 p-5 border rounded-xl bg-slate-50">
+                            <div className="md:col-span-2">
+                                <label htmlFor="custom-endpoint" className="block text-sm font-medium text-slate-700 mb-2">OpenAI-Compatible Chat Completions URL</label>
+                                <input id="custom-endpoint" type="url" value={customEndpoint} onChange={(e) => setCustomEndpoint(e.target.value)} placeholder="https://api.example.com/v1/chat/completions" className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
+                            </div>
+                            <div>
+                                <label htmlFor="custom-model" className="block text-sm font-medium text-slate-700 mb-2">Model Name</label>
+                                <input id="custom-model" type="text" value={customModelName} onChange={(e) => setCustomModelName(e.target.value)} placeholder="model-name" className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
+                            </div>
+                            <div>
+                                <label htmlFor="custom-api-key" className="block text-sm font-medium text-slate-700 mb-2">API Key (kept in memory only)</label>
+                                <input id="custom-api-key" type="password" autoComplete="off" value={customApiKey} onChange={(e) => setCustomApiKey(e.target.value)} placeholder="Paste provider key" className="w-full p-3 border border-slate-300 rounded-lg text-base focus:ring-2 focus:ring-primary focus:border-primary" disabled={isLoading} />
+                            </div>
+                            <p className="md:col-span-2 text-xs text-slate-500">The endpoint must accept OpenAI-compatible chat-completion requests. The key is never stored, logged, or uploaded.</p>
                         </div>
                     )}
 

@@ -22,7 +22,7 @@ See [ADVANCED_TESTS.md](ADVANCED_TESTS.md) for detailed documentation on all 20 
 
 **Prerequisites:**  Node.js
 
-### Quick Start - Choose Your Provider:
+### Quick Start - Choose Your Provider
 
 #### Option A: Gemini API (Recommended)
 1. Install dependencies:
@@ -40,7 +40,7 @@ See [ADVANCED_TESTS.md](ADVANCED_TESTS.md) for detailed documentation on all 20 
    ```
 5. In UI: Select **"Gemini API"** provider
 
-#### Option B: Ollama (Local, Free)
+#### Option B: Ollama (all installed models)
 1. Install [Ollama](https://ollama.ai)
 2. Start Ollama:
    ```bash
@@ -55,7 +55,14 @@ See [ADVANCED_TESTS.md](ADVANCED_TESTS.md) for detailed documentation on all 20 
    npm install
    npm run dev
    ```
-5. In UI: Select **"Local Model (Ollama)"** provider
+5. In the UI, select **"Local Model (Ollama)"**. GuardLLM queries Ollama's `/api/tags` endpoint and lists every model installed on that server. You can also type a model tag manually.
+
+#### Option C: Any OpenAI-compatible LLM API
+1. Select **"Custom OpenAI-Compatible API"** in the UI.
+2. Paste the provider's chat-completions URL, model name, and API key.
+3. The key is held in browser memory only, sent as a Bearer token, and never saved or uploaded.
+
+The custom option supports providers that implement `POST /v1/chat/completions` with `messages`, `model`, and `stream: false`. Your provider must allow browser CORS requests.
 
 `npm run dev` now starts both Ollama and Vite together.
 
@@ -67,3 +74,4 @@ See [ADVANCED_TESTS.md](ADVANCED_TESTS.md) for detailed documentation on all 20 
 - Copy [.env.local.example](.env.local.example) to `.env.local`
 - Add `VITE_GEMINI_API_KEY=your_key` for Gemini API
 - **⚠️ Never commit `.env.local` to version control**
+- Ollama model discovery and custom API requests require the server/provider to allow browser CORS requests.

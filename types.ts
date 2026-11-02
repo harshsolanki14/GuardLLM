@@ -53,12 +53,13 @@ export interface TestResult {
 // LLM PROVIDER TYPES
 // ============================================================================
 
-export type LLMProvider = 'gemini' | 'local';
+export type LLMProvider = 'gemini' | 'local' | 'custom';
 
 export interface LLMConfig {
     provider: LLMProvider;
     endpoint?: string;
     model?: string;
+    apiKey?: string;
 }
 
 // ============================================================================
@@ -90,7 +91,7 @@ export const isValidTestStatus = (value: any): value is TestStatus => {
  * Type guard to check if value is a valid LLMProvider
  */
 export const isValidLLMProvider = (value: any): value is LLMProvider => {
-  return value === 'gemini' || value === 'local';
+  return value === 'gemini' || value === 'local' || value === 'custom';
 };
 
 /**
