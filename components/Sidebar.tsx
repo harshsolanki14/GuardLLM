@@ -45,8 +45,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ tests, selectedTests, onToggle
         <p className="text-xs md:text-sm text-slate-500">
           <strong>LLM Providers:</strong>
           <ul className="mt-2 space-y-1 text-xs">
-            <li>🔹 <strong>Gemini API</strong> - Advanced testing (requires API key)</li>
-            <li>🔹 <strong>Ollama/Local</strong> - Run locally (no API needed)</li>
+            <li>🔹 <strong>Gemini API</strong> - Advanced testing (optional environment key)</li>
+            <li>🔹 <strong>Ollama/Local</strong> - Test every installed local model</li>
+            <li>🔹 <strong>Custom API</strong> - Test OpenAI-compatible providers</li>
           </ul>
           <span className="text-slate-600 mt-2 block">Configure in "Configure Target LLM" above.</span>
         </p>
