@@ -1,6 +1,6 @@
 # GuardLLM - LLM Provider Setup Guide
 
-This guide explains how to configure **Gemini API** and **Ollama** for security testing.
+This guide explains how to configure **Gemini API**, every installed **Ollama** model, and any **OpenAI-compatible API** for security testing.
 
 ---
 
@@ -65,8 +65,8 @@ This guide explains how to configure **Gemini API** and **Ollama** for security 
 
 5. **Use in UI**
    - Select **"Local Model (Ollama)"** under "LLM Provider"
-   - **Ollama Endpoint URL**: `http://localhost:11434/v1/chat/completions` (default)
-   - **Model Name**: Choose from dropdown or type custom model name
+   - **Ollama Server URL**: `http://localhost:11434` (default)
+   - **Installed Model**: GuardLLM discovers every model from Ollama's `/api/tags` endpoint. Select one or type a model tag manually.
    - Configure System Prompt
    - Click "Run Tests"
 
@@ -81,7 +81,18 @@ This guide explains how to configure **Gemini API** and **Ollama** for security 
 
 ---
 
-## Comparison: Gemini vs Ollama
+## Option 3: Custom OpenAI-Compatible API
+
+Use this option for hosted inference services or self-hosted gateways that implement the OpenAI chat-completions format.
+
+1. Select **"Custom OpenAI-Compatible API"**.
+2. Enter the complete chat-completions URL, for example `https://api.example.com/v1/chat/completions`.
+3. Enter the provider's model name and paste its API key.
+4. The key stays in browser memory only and is sent as a Bearer authorization header. It is never written to `.env.local`, logged, or uploaded.
+
+The provider must accept `POST` requests containing `model`, `messages`, and `stream: false`, return `choices[0].message.content`, and allow browser CORS requests.
+
+## Comparison: Gemini vs Ollama vs Custom API
 
 | Feature | Gemini API | Ollama Local |
 |---------|-----------|--------------|

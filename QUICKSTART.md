@@ -4,7 +4,7 @@
 
 Your GuardLLM project now includes:
 - ✅ **20 Security Tests** (10 OWASP + 10 Advanced Adversarial)
-- ✅ **Secure Configuration** (API keys in environment, not hardcoded)
+- ✅ **Secure Configuration** (Gemini keys use environment variables; custom keys remain in browser memory)
 - ✅ **Enhanced Service Layer** (URL validation, response parsing, null checks)
 - ✅ **Comprehensive Documentation** (ADVANCED_TESTS.md, IMPLEMENTATION_SUMMARY.md)
 
@@ -22,7 +22,7 @@ Your GuardLLM project now includes:
 - Setup: Install [Ollama](https://ollama.ai), run `ollama serve`, pull a model
 - Models: tinyllama (1.1B), llama3.2:1b, gemma:2b, llama3.1:8b
 
-**👉 [See LLM_SETUP_GUIDE.md](LLM_SETUP_GUIDE.md) for detailed setup of both providers**
+**👉 [See LLM_SETUP_GUIDE.md](LLM_SETUP_GUIDE.md) for detailed setup of all providers**
 
 ### 2. First Time Setup
 
@@ -55,8 +55,9 @@ Open `http://localhost:5173` (or shown port) in your browser.
 ### 4. Select & Run Tests
 
 1. **Configure Target LLM** section:
-   - Choose provider: Gemini API or Local Model (Ollama)
-   - If Ollama: set endpoint and model name
+   - Choose provider: Gemini API, Local Model (Ollama), or Custom OpenAI-Compatible API
+   - If Ollama: GuardLLM lists every model installed on the configured server
+   - If using a custom API: enter its chat-completions URL, model, and API key
    - Enter system prompt for your target LLM
 
 2. **Select & Run Tests** section:
