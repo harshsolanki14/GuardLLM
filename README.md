@@ -12,7 +12,7 @@ View your app in AI Studio: https://ai.studio/apps/drive/1QG2vQsjW_Jg7fY-wmRt4Pp
 
 - **20 Security Tests:** Updated OWASP LLM Top 10 + 10 advanced adversarial attack scenarios
 - **Dual Testing Modes:** Basic attacks for quick assessment, Advanced mode for deep security validation
-- **Multiple LLM Support:** Test with Google Gemini API or local Ollama models (free, unlimited)
+- **Multiple LLM Support:** Test Gemini, every model installed in Ollama, or any OpenAI-compatible API
 - **Comprehensive Reporting:** PDF export with detailed vulnerability analysis
 - **Advanced Attack Coverage:** Cross-lingual evasion, obfuscation, context exhaustion, persona hijacking, and more
 
