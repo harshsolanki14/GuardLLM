@@ -66,7 +66,7 @@ The custom option supports providers that implement `POST /v1/chat/completions` 
 
 `npm run dev` now starts both Ollama and Vite together.
 
-**📖 See [LLM_SETUP_GUIDE.md](LLM_SETUP_GUIDE.md) for detailed setup instructions for both providers.**
+**📖 See [LLM_SETUP_GUIDE.md](LLM_SETUP_GUIDE.md) for detailed setup instructions for all providers.**
 
 ---
 
