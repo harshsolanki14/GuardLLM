@@ -1,2 +1,69 @@
-# GuardLLM
-GuardLLM is a Python and React-based tool for testing LLM security, identifying jailbreaks, adversarial vulnerabilities, and potential data leaks in AI models.
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/drive/1QG2vQsjW_Jg7fY-wmRt4Ppf9Hytc8XjC
+
+## Features
+
+- **20 Security Tests:** Updated OWASP LLM Top 10 + 10 advanced adversarial attack scenarios
+- **Dual Testing Modes:** Basic attacks for quick assessment, Advanced mode for deep security validation
+- **Multiple LLM Support:** Test with Google Gemini API or local Ollama models (free, unlimited)
+- **Comprehensive Reporting:** PDF export with detailed vulnerability analysis
+- **Advanced Attack Coverage:** Cross-lingual evasion, obfuscation, context exhaustion, persona hijacking, and more
+
+See [ADVANCED_TESTS.md](ADVANCED_TESTS.md) for detailed documentation on all 20 tests.
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+### Quick Start - Choose Your Provider:
+
+#### Option A: Gemini API (Recommended)
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Get API key from [Google AI Studio](https://aistudio.google.com/app/apikeys)
+3. Create `.env.local`:
+   ```
+   VITE_GEMINI_API_KEY=your_api_key_here
+   ```
+4. Run:
+   ```bash
+   npm run dev:vite
+   ```
+5. In UI: Select **"Gemini API"** provider
+
+#### Option B: Ollama (Local, Free)
+1. Install [Ollama](https://ollama.ai)
+2. Start Ollama:
+   ```bash
+   ollama serve
+   ```
+3. Pull a model (in another terminal):
+   ```bash
+   ollama pull tinyllama    # Recommended for testing
+   ```
+4. Install & run app:
+   ```bash
+   npm install
+   npm run dev
+   ```
+5. In UI: Select **"Local Model (Ollama)"** provider
+
+`npm run dev` now starts both Ollama and Vite together.
+
+**📖 See [LLM_SETUP_GUIDE.md](LLM_SETUP_GUIDE.md) for detailed setup instructions for both providers.**
+
+---
+
+### Environment Setup
+- Copy [.env.local.example](.env.local.example) to `.env.local`
+- Add `VITE_GEMINI_API_KEY=your_key` for Gemini API
+- **⚠️ Never commit `.env.local` to version control**

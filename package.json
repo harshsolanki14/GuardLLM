@@ -1,0 +1,30 @@
+{
+  "name": "guardllm-automated-llm-security-testing",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/check-ollama.js && concurrently \"npm run ollama\" \"npm run vite\" --kill-others-on-fail",
+    "dev:vite": "npm run vite",
+    "dev:local": "npm run dev",
+    "vite": "vite",
+    "ollama": "node scripts/start-ollama.js",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@google/genai": "^1.24.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.1",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

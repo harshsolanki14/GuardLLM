@@ -1,0 +1,5 @@
+{
+  "name": "GuardLLM: Automated LLM Security Testing",
+  "description": "An automated testing tool to assess the security of Large Language Models (LLMs) against the OWASP Top 10 for LLM Applications. Define your LLM's system prompt, select vulnerabilities to test, and get a detailed analysis of its resilience.",
+  "requestFramePermissions": []
+}
